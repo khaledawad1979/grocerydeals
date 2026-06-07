@@ -9,7 +9,8 @@ const dealsRouter  = require('./routes/deals');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
-const isProd = process.env.NODE_ENV === 'production';
+const buildPath = path.join(__dirname, '../client/build');
+const isProd = process.env.NODE_ENV === 'production' || require('fs').existsSync(buildPath);
 
 // In production the React build is served from the same origin — no CORS needed.
 // In development allow the React dev server on localhost:3000.
@@ -33,11 +34,9 @@ app.use('/api/stores', storesRouter);
 app.use('/api/deals',  dealsRouter);
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
-// Serve React build in production
+// Serve React build whenever it exists (production and local production builds)
 if (isProd) {
-  const buildPath = path.join(__dirname, '../client/build');
   app.use(express.static(buildPath));
-  // All non-API routes return the React app
   app.get('*', (_req, res) => res.sendFile(path.join(buildPath, 'index.html')));
 }
 
