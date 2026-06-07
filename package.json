@@ -1,0 +1,12 @@
+{
+  "name": "grocerydeals-nearme",
+  "version": "1.0.0",
+  "description": "GroceryDeals Near Me — find today's grocery deals at stores near you",
+  "scripts": {
+    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
+    "start": "node server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
