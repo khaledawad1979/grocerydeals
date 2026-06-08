@@ -41,7 +41,11 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles) {
     const merchantName = (flyer.merchant   || '').trim() || 'Unknown Store';
     // Use merchant_id so multiple flyers for the same chain collapse into one store
     const storeId      = `flipp-${flyer.merchant_id || flyer.id}`;
-    const flyerUrl     = `https://flipp.com/en-us/flyers/${flyer.id}`;
+    // Use the UUID path for stable deep links (numeric IDs can 404 on Flipp's SPA)
+    const flyerUuid    = (flyer.path || '').replace(/^flyers\//, '').replace(/\/$/, '');
+    const flyerUrl     = flyerUuid
+      ? `https://flipp.com/en-us/flyers/${flyerUuid}`
+      : `https://flipp.com/en-us/flyers/${flyer.id}`;
 
     if (!seenStores.has(storeId)) {
       seenStores.add(storeId);
