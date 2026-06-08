@@ -7,7 +7,7 @@ const FLIPP_API = 'https://backflipp.wishabi.com/flipp';
  * Note: Flipp's per-item API is no longer publicly accessible. We return stores
  * that have active grocery flyers today, with a direct link to view each flyer.
  */
-async function getDealsNearZip(zip, lat, lng, radiusMiles) {
+async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = '') {
   const today = new Date().toISOString().slice(0, 10);
 
   let flyers;
@@ -41,11 +41,13 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles) {
     const merchantName = (flyer.merchant   || '').trim() || 'Unknown Store';
     // Use merchant_id so multiple flyers for the same chain collapse into one store
     const storeId      = `flipp-${flyer.merchant_id || flyer.id}`;
-    // Use the UUID path for stable deep links (numeric IDs can 404 on Flipp's SPA)
-    const flyerUuid    = (flyer.path || '').replace(/^flyers\//, '').replace(/\/$/, '');
-    const flyerUrl     = flyerUuid
-      ? `https://flipp.com/en-us/flyers/${flyerUuid}`
-      : `https://flipp.com/en-us/flyers/${flyer.id}`;
+    // Build the correct Flipp URL: /en-us/{city-state}/weekly_ad/{id}-{merchant-slug}
+    // e.g. https://flipp.com/en-us/buford-ga/weekly_ad/7942308-publix-weekly-ad
+    const citySlug     = city && state
+      ? `${city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${state.toLowerCase()}`
+      : 'us';
+    const merchantSlug = merchantName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const flyerUrl     = `https://flipp.com/en-us/${citySlug}/weekly_ad/${flyer.id}-${merchantSlug}`;
 
     if (!seenStores.has(storeId)) {
       seenStores.add(storeId);

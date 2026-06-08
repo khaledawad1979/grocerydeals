@@ -51,10 +51,7 @@ router.get('/', async (req, res) => {
   // --- Flipp ---
   try {
     const { stores: flippStores, deals: flippDeals } = await flipp.getDealsNearZip(
-      zip,
-      lat,
-      lng,
-      radiusMiles
+      zip, lat, lng, radiusMiles, location.city, location.state
     );
     allStores.push(...flippStores);
     allDeals.push(...flippDeals);

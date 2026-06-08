@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
 
   // Flipp stores (derived from flyers)
   try {
-    const { stores: flippStores } = await flipp.getDealsNearZip(zip, lat, lng, radiusMiles);
+    const { stores: flippStores } = await flipp.getDealsNearZip(zip, lat, lng, radiusMiles, location.city, location.state);
     stores.push(...flippStores);
   } catch (err) {
     errors.push({ source: 'flipp', message: err.message });
