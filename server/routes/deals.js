@@ -166,7 +166,7 @@ function buildResponse(location, stores, deals, errors) {
 
   const storeList = Object.values(storeMap)
     .filter(s => s.deals.length > 0)
-    .sort((a, b) => a.distance - b.distance);
+    .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
 
   return {
     location,

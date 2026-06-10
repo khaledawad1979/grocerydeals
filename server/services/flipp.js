@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { extractDealsFromFlyer } = require('./flippAI');
+const { locateStore } = require('./storeLocator');
 
 const FLIPP_API = 'https://backflipp.wishabi.com/flipp';
 
@@ -62,7 +63,7 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
         address: '',
         lat,
         lng,
-        distance: 0,
+        distance: null, // unknown until located via OpenStreetMap (background pass)
         flyerUrl,
       });
     }
@@ -82,6 +83,20 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
       if (seenDeals.has(key)) continue;
       seenDeals.add(key);
       deals.push(deal);
+    }
+  }
+
+  // 5. Locate each merchant's nearest branch via OpenStreetMap (slow path only —
+  //    ~1.1s per merchant due to Nominatim rate limits, results cached per zip)
+  if (visionEnabled) {
+    for (const store of stores) {
+      const loc = await locateStore(store.name, zip, lat, lng, radiusMiles);
+      if (loc) {
+        store.lat      = loc.lat;
+        store.lng      = loc.lng;
+        store.address  = loc.address;
+        store.distance = Math.round(loc.distance * 10) / 10;
+      }
     }
   }
 

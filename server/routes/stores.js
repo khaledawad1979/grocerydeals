@@ -36,13 +36,13 @@ router.get('/', async (req, res) => {
 
   // Flipp stores (derived from flyers)
   try {
-    const { stores: flippStores } = await flipp.getDealsNearZip(zip, lat, lng, radiusMiles, location.city, location.state);
+    const { stores: flippStores } = await flipp.getDealsNearZip(zip, lat, lng, radiusMiles, location.city, location.state, { visionEnabled: false });
     stores.push(...flippStores);
   } catch (err) {
     errors.push({ source: 'flipp', message: err.message });
   }
 
-  stores.sort((a, b) => a.distance - b.distance);
+  stores.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
 
   res.json({
     location,

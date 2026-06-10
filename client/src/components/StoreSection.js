@@ -25,9 +25,11 @@ export default function StoreSection({ store, activeCategory }) {
           </div>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-          <span className="hidden sm:inline text-xs text-gray-400 font-medium">
-            {store.distance.toFixed(1)} mi away
-          </span>
+          {store.distance != null && (
+            <span className="hidden sm:inline text-xs text-gray-400 font-medium">
+              {store.distance.toFixed(1)} mi away
+            </span>
+          )}
           <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-xs font-bold rounded-full">
             {filteredDeals.length} deals
           </span>
