@@ -1,4 +1,5 @@
 import React from 'react';
+import { getItemUrl } from '../utils/itemUrl';
 
 const SOURCE_BADGE = {
   kroger: 'bg-blue-50 text-blue-600',
@@ -37,10 +38,13 @@ export default function PriceComparisonView({ deals, query }) {
         {deals.map((deal, idx) => {
           const isBest = idx === 0 && deal.salePrice != null;
           return (
-            <div
+            <a
               key={deal.id}
-              className={`flex items-center gap-4 px-5 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors ${
-                isBest ? 'bg-brand-50 hover:bg-brand-50' : ''
+              href={getItemUrl(deal)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-4 px-5 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors group cursor-pointer ${
+                isBest ? 'bg-brand-50 hover:bg-brand-100' : ''
               }`}
             >
               {/* Rank */}
@@ -94,7 +98,9 @@ export default function PriceComparisonView({ deals, query }) {
                   <p className="text-sm text-gray-400 italic">See store</p>
                 )}
               </div>
-            </div>
+              {/* External link hint */}
+              <span className="text-gray-300 group-hover:text-brand-400 transition-colors flex-shrink-0 text-sm">↗</span>
+            </a>
           );
         })}
       </div>

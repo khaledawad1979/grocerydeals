@@ -1,4 +1,5 @@
 import React from 'react';
+import { getItemUrl } from '../utils/itemUrl';
 
 export default function DealCard({ deal }) {
   const {
@@ -8,16 +9,22 @@ export default function DealCard({ deal }) {
   } = deal;
 
   const hasPriceInfo = salePrice != null || originalPrice != null;
+  const itemUrl = getItemUrl(deal);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+    <a
+      href={itemUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-brand-300 transition-all overflow-hidden flex flex-col group"
+    >
       {/* Image */}
       {imageUrl ? (
         <div className="h-32 bg-gray-50 flex items-center justify-center overflow-hidden">
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-contain p-2"
+            className="h-full w-full object-contain p-2 group-hover:scale-105 transition-transform duration-200"
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         </div>
@@ -43,7 +50,7 @@ export default function DealCard({ deal }) {
         </div>
 
         {/* Name */}
-        <p className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-1">
+        <p className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-1 group-hover:text-brand-700 transition-colors">
           {name}
         </p>
         {brand && <p className="text-xs text-gray-400 mb-1">{brand}</p>}
@@ -73,36 +80,27 @@ export default function DealCard({ deal }) {
           </div>
         )}
 
-        {/* Source tag */}
-        <div className="mt-2">
+        {/* Source + external link hint */}
+        <div className="mt-2 flex items-center justify-between">
           <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-            source === 'kroger'
-              ? 'bg-blue-50 text-blue-600'
-              : 'bg-purple-50 text-purple-600'
+            source === 'kroger' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
           }`}>
             {source === 'kroger' ? 'Kroger' : 'Flipp'}
           </span>
+          <span className="text-xs text-gray-300 group-hover:text-brand-400 transition-colors">↗</span>
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 
 function categoryEmoji(cat) {
   const map = {
-    'Produce': '🥦',
-    'Dairy & Eggs': '🥛',
-    'Meat & Seafood': '🥩',
-    'Bakery': '🍞',
-    'Frozen': '🧊',
-    'Beverages': '🥤',
-    'Snacks': '🍿',
-    'Breakfast': '🥣',
-    'Deli': '🧀',
-    'Health & Beauty': '🧴',
-    'Household': '🧹',
-    'Grocery': '🛒',
-    'Other': '📦',
+    'Produce': '🥦', 'Dairy & Eggs': '🥛', 'Meat & Seafood': '🥩',
+    'Bakery': '🍞', 'Frozen': '🧊', 'Beverages': '🥤',
+    'Snacks': '🍿', 'Breakfast': '🥣', 'Deli': '🧀',
+    'Health & Beauty': '🧴', 'Household': '🧹',
+    'Grocery': '🛒', 'Other': '📦',
   };
   return map[cat] || '🛒';
 }
