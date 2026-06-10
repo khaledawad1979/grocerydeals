@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { extractDealsFromFlyer } = require('./flippAI');
 const { locateStore } = require('./storeLocator');
+const { enrichDealsWithLinks } = require('./itemLinker');
 
 const FLIPP_API = 'https://backflipp.wishabi.com/flipp';
 
@@ -97,6 +98,14 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
         store.address  = loc.address;
         store.distance = Math.round(loc.distance * 10) / 10;
       }
+    }
+
+    // 6. Find each item's product page on the store's own website (web search,
+    //    cached per item — cards without a found link stay non-clickable)
+    try {
+      await enrichDealsWithLinks(deals);
+    } catch (err) {
+      console.warn(`[Flipp] Item link enrichment failed: ${err.message}`);
     }
   }
 

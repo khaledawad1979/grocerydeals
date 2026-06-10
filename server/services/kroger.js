@@ -117,8 +117,12 @@ async function getDealsForStore(store) {
         if (seen.has(dealKey)) continue;
         seen.add(dealKey);
 
+        const slug = (p.description || '')
+          .toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+
         deals.push({
           id:           `kroger-${p.productId}`,
+          itemUrl:      `https://www.kroger.com/p/${slug}/${p.productId}`,
           storeId:      store.id,
           storeName:    store.name,
           storeChain:   store.chain,

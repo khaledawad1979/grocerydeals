@@ -34,12 +34,17 @@ export default function PriceComparisonView({ deals, query }) {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         {deals.map((deal, idx) => {
           const isBest = idx === 0 && deal.salePrice != null;
+          const Row = deal.itemUrl ? 'a' : 'div';
+          const linkProps = deal.itemUrl
+            ? { href: deal.itemUrl, target: '_blank', rel: 'noopener noreferrer' }
+            : {};
           return (
-            <div
+            <Row
               key={deal.id}
+              {...linkProps}
               className={`flex items-center gap-4 px-5 py-4 border-b border-gray-50 last:border-0 ${
-                isBest ? 'bg-brand-50' : ''
-              }`}
+                deal.itemUrl ? 'hover:bg-gray-50 cursor-pointer' : ''
+              } ${isBest ? 'bg-brand-50' : ''}`}
             >
               {/* Rank */}
               <span className={`w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${
@@ -89,7 +94,10 @@ export default function PriceComparisonView({ deals, query }) {
                   <p className="text-sm text-gray-400 italic">See store</p>
                 )}
               </div>
-            </div>
+              {deal.itemUrl && (
+                <span className="text-brand-400 flex-shrink-0 text-sm">↗</span>
+              )}
+            </Row>
           );
         })}
       </div>

@@ -4,13 +4,13 @@ export default function DealCard({ deal }) {
   const {
     name, brand, category, imageUrl,
     originalPrice, salePrice, discountPct,
-    unit, description, todayOnly, source,
+    unit, description, todayOnly, source, itemUrl,
   } = deal;
 
   const hasPriceInfo = salePrice != null || originalPrice != null;
 
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+  const inner = (
+    <>
       {imageUrl ? (
         <div className="h-32 bg-gray-50 flex items-center justify-center overflow-hidden">
           <img src={imageUrl} alt={name} className="h-full w-full object-contain p-2"
@@ -55,14 +55,37 @@ export default function DealCard({ deal }) {
           </div>
         )}
 
-        <div className="mt-2">
+        <div className="mt-2 flex items-center justify-between">
           <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
             source === 'kroger' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
           }`}>
             {source === 'kroger' ? 'Kroger' : 'Flipp'}
           </span>
+          {itemUrl && (
+            <span className="text-xs text-brand-500 font-medium">View item ↗</span>
+          )}
         </div>
       </div>
+    </>
+  );
+
+  // Clickable only when the agent found a verified product page
+  if (itemUrl) {
+    return (
+      <a
+        href={itemUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-brand-300 transition-all overflow-hidden flex flex-col"
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+      {inner}
     </div>
   );
 }
