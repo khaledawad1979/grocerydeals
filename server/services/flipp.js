@@ -100,10 +100,10 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
       }
     }
 
-    // 6. Find each item's product page on the store's own website (web search,
-    //    cached per item — cards without a found link stay non-clickable)
+    // 6. Find each item's product page + regular price on the store's website
+    //    (web search, cached per item+zip — computes discount % vs sale price)
     try {
-      await enrichDealsWithLinks(deals);
+      await enrichDealsWithLinks(deals, { zip, city, state });
     } catch (err) {
       console.warn(`[Flipp] Item link enrichment failed: ${err.message}`);
     }
