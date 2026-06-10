@@ -68,12 +68,19 @@ async function extractDealsFromFlyer(flyer, merchantName, storeId, options = {})
   const needVision = [];
 
   for (const item of usable) {
-    const price    = parseFloat(item.price) || null;
-    const discount = item.discount ? parseInt(item.discount) : null;
+    const salePrice  = parseFloat(item.price) || null;
+    const discountPct = item.discount ? parseInt(item.discount) : null;
 
-    if (price !== null) {
+    // Reverse-calculate original price when we have both sale price and discount %
+    // originalPrice = salePrice / (1 - discount/100)
+    let originalPrice = null;
+    if (salePrice && discountPct && discountPct > 0 && discountPct < 100) {
+      originalPrice = Math.round((salePrice / (1 - discountPct / 100)) * 100) / 100;
+    }
+
+    if (salePrice !== null) {
       // API already gave us the price — no Vision call needed
-      complete.push(buildDeal(item, price, null, discount, merchantName, storeId, flyerStart, flyerEnd, today));
+      complete.push(buildDeal(item, salePrice, originalPrice, discountPct, merchantName, storeId, flyerStart, flyerEnd, today));
     } else {
       needVision.push(item);
     }
@@ -143,22 +150,22 @@ async function analyzeItemImage(item, merchantName) {
 
   const prompt = `You are analyzing a grocery store deal/advertisement cutout image from ${merchantName}.
 
-Extract the following information from the image and respond with ONLY valid JSON (no markdown, no explanation):
+Extract ALL pricing information and respond with ONLY valid JSON (no markdown, no explanation):
 {
   "name": "product name and size/quantity if visible",
-  "salePrice": <number or null>,
-  "originalPrice": <number or null>,
-  "discountPct": <integer percent off or null>,
+  "salePrice": <the prominent sale/deal price as a number, or null>,
+  "originalPrice": <the regular/was/before price as a number — look for strikethrough text, "reg.", "was", "save", small text near the main price, or any secondary price shown, or null>,
+  "discountPct": <integer percentage off — look for "% off", "save X%", or calculate from prices if both are visible, or null>,
   "category": "one of: Produce, Dairy & Eggs, Meat & Seafood, Bakery, Frozen, Beverages, Snacks, Breakfast, Deli, Health & Beauty, Household, Grocery",
-  "unit": "size or unit shown (e.g. '12 oz', '2 lb') or null"
+  "unit": "size or unit shown (e.g. '12 oz', '2 lb', 'each') or null"
 }
 
 Rules:
-- salePrice is the deal/sale price shown most prominently
-- originalPrice is the regular/was price if shown, otherwise null
-- discountPct: calculate from prices if not explicitly shown, otherwise null
+- salePrice: the biggest/most prominent price — this is the deal price
+- originalPrice: look carefully for ANY secondary price (strikethrough, smaller text, "reg $X", "was $X", "save $X off $Y"). If salePrice and discountPct are both visible, compute originalPrice = salePrice / (1 - discountPct/100)
+- discountPct: if you see "X% off" or can compute it from both prices, include it
 - If no price is visible at all, set both prices to null
-- Respond with ONLY the JSON object`;
+- Respond with ONLY the JSON object, no other text`;
 
   try {
     const client = getClient(); // inside try so auth errors surface via console.warn
