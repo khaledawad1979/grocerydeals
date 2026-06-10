@@ -8,7 +8,8 @@ const FLIPP_API = 'https://backflipp.wishabi.com/flipp';
  * to extract individual deal items from each flyer.
  * Returns { stores, deals } — same shape as before, but with real item cards.
  */
-async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = '') {
+async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = '', options = {}) {
+  const { visionEnabled = true } = options;
   const today = new Date().toISOString().slice(0, 10);
 
   // 1. Fetch flyer list
@@ -66,10 +67,10 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
       });
     }
 
-    // 4. Use AI agent to extract deal items
+    // 4. Use AI agent to extract deal items (or fast-path without Vision)
     let flyerDeals = [];
     try {
-      flyerDeals = await extractDealsFromFlyer(flyer, merchantName, storeId);
+      flyerDeals = await extractDealsFromFlyer(flyer, merchantName, storeId, { visionEnabled });
     } catch (err) {
       console.warn(`[Flipp] AI extraction failed for ${merchantName}: ${err.message}`);
       continue;

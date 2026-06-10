@@ -5,7 +5,7 @@ import StoreSection from '../components/StoreSection';
 
 const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
 
-export default function ResultsPage({ search, results, loading, error, onReset, onSearch }) {
+export default function ResultsPage({ search, results, loading, error, aiReady, onReset, onSearch }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [zip, setZip] = useState(search?.zip || '');
   const [radius, setRadius] = useState(search?.radius || 10);
@@ -120,6 +120,26 @@ export default function ResultsPage({ search, results, loading, error, onReset, 
                 </span>
               </span>
             </div>
+
+            {/* AI enrichment banner — shown while Vision is processing */}
+            {!aiReady && results?.stores?.length > 0 && (
+              <div className="mb-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800 flex items-center gap-3">
+                <svg className="animate-spin h-4 w-4 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                <span>
+                  <strong>AI agent running</strong> — Claude is reading flyer images to extract more deals.
+                  Results will update automatically in ~60 seconds.
+                </span>
+              </div>
+            )}
+            {aiReady && results?.stores?.some(s => s.source === 'flipp' && s.deals?.length > 1) && (
+              <div className="mb-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800 flex items-center gap-2">
+                <span>✨</span>
+                <span><strong>AI enrichment complete</strong> — all flyer items extracted by Claude Vision.</span>
+              </div>
+            )}
 
             {/* API error warnings (partial results) */}
             {results.errors?.map((e) => (

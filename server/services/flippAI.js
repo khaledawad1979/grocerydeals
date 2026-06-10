@@ -38,7 +38,8 @@ function getClient() {
  * @param {string} storeId
  * @returns {Promise<object[]>} array of normalised deal objects
  */
-async function extractDealsFromFlyer(flyer, merchantName, storeId) {
+async function extractDealsFromFlyer(flyer, merchantName, storeId, options = {}) {
+  const { visionEnabled = true } = options;
   const today = new Date().toISOString().slice(0, 10);
   const flyerStart = (flyer.valid_from || today).slice(0, 10);
   const flyerEnd   = (flyer.valid_to   || today).slice(0, 10);
@@ -78,9 +79,10 @@ async function extractDealsFromFlyer(flyer, merchantName, storeId) {
     }
   }
 
-  console.log(`[FlippAI] ${merchantName} flyer ${flyer.id}: ${complete.length} direct, ${needVision.length} need Vision`);
+  console.log(`[FlippAI] ${merchantName} flyer ${flyer.id}: ${complete.length} direct, ${needVision.length} need Vision (vision=${visionEnabled})`);
 
-  // 2. Run Vision in batches
+  // 2. Run Vision in batches (skipped if visionEnabled=false)
+  if (!visionEnabled) return complete;
   const visionDeals = [];
   for (let i = 0; i < needVision.length; i += VISION_CONCURRENCY) {
     const batch   = needVision.slice(i, i + VISION_CONCURRENCY);
