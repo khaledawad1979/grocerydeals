@@ -1,5 +1,4 @@
 import React from 'react';
-import { getItemUrl } from '../utils/itemUrl';
 
 export default function DealCard({ deal }) {
   const {
@@ -9,24 +8,13 @@ export default function DealCard({ deal }) {
   } = deal;
 
   const hasPriceInfo = salePrice != null || originalPrice != null;
-  const itemUrl = getItemUrl(deal);
 
   return (
-    <a
-      href={itemUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-brand-300 transition-all overflow-hidden flex flex-col group"
-    >
-      {/* Image */}
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
       {imageUrl ? (
         <div className="h-32 bg-gray-50 flex items-center justify-center overflow-hidden">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="h-full w-full object-contain p-2 group-hover:scale-105 transition-transform duration-200"
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
+          <img src={imageUrl} alt={name} className="h-full w-full object-contain p-2"
+            onError={(e) => { e.target.style.display = 'none'; }} />
         </div>
       ) : (
         <div className="h-24 bg-gradient-to-br from-brand-50 to-green-50 flex items-center justify-center text-3xl">
@@ -35,7 +23,6 @@ export default function DealCard({ deal }) {
       )}
 
       <div className="p-3 flex flex-col flex-1">
-        {/* Badges */}
         <div className="flex flex-wrap gap-1 mb-1.5">
           {todayOnly && (
             <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full uppercase tracking-wide">
@@ -49,48 +36,34 @@ export default function DealCard({ deal }) {
           )}
         </div>
 
-        {/* Name */}
-        <p className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-1 group-hover:text-brand-700 transition-colors">
-          {name}
-        </p>
+        <p className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-1">{name}</p>
         {brand && <p className="text-xs text-gray-400 mb-1">{brand}</p>}
         {unit && <p className="text-xs text-gray-400">{unit}</p>}
-        {description && (
-          <p className="text-xs text-gray-400 mt-1 line-clamp-2">{description}</p>
-        )}
+        {description && <p className="text-xs text-gray-400 mt-1 line-clamp-2">{description}</p>}
 
-        {/* Price */}
         {hasPriceInfo && (
           <div className="mt-auto pt-2 flex items-end gap-2">
             {salePrice != null && (
-              <span className="text-xl font-extrabold text-brand-600">
-                ${salePrice.toFixed(2)}
-              </span>
+              <span className="text-xl font-extrabold text-brand-600">${salePrice.toFixed(2)}</span>
             )}
             {originalPrice != null && salePrice != null && originalPrice > salePrice && (
-              <span className="text-sm text-gray-400 line-through">
-                ${originalPrice.toFixed(2)}
-              </span>
+              <span className="text-sm text-gray-400 line-through">${originalPrice.toFixed(2)}</span>
             )}
             {salePrice == null && originalPrice != null && (
-              <span className="text-xl font-extrabold text-gray-700">
-                ${originalPrice.toFixed(2)}
-              </span>
+              <span className="text-xl font-extrabold text-gray-700">${originalPrice.toFixed(2)}</span>
             )}
           </div>
         )}
 
-        {/* Source + external link hint */}
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mt-2">
           <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
             source === 'kroger' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
           }`}>
             {source === 'kroger' ? 'Kroger' : 'Flipp'}
           </span>
-          <span className="text-xs text-gray-300 group-hover:text-brand-400 transition-colors">↗</span>
         </div>
       </div>
-    </a>
+    </div>
   );
 }
 

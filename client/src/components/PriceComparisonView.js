@@ -1,5 +1,4 @@
 import React from 'react';
-import { getItemUrl } from '../utils/itemUrl';
 
 const SOURCE_BADGE = {
   kroger: 'bg-blue-50 text-blue-600',
@@ -21,7 +20,6 @@ export default function PriceComparisonView({ deals, query }) {
 
   return (
     <div>
-      {/* Result count + cheapest callout */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <span className="text-sm text-gray-500">
           <span className="font-bold text-gray-800">{deals.length}</span> matching deals — sorted cheapest first
@@ -33,18 +31,14 @@ export default function PriceComparisonView({ deals, query }) {
         )}
       </div>
 
-      {/* Deal rows */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         {deals.map((deal, idx) => {
           const isBest = idx === 0 && deal.salePrice != null;
           return (
-            <a
+            <div
               key={deal.id}
-              href={getItemUrl(deal)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-4 px-5 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors group cursor-pointer ${
-                isBest ? 'bg-brand-50 hover:bg-brand-100' : ''
+              className={`flex items-center gap-4 px-5 py-4 border-b border-gray-50 last:border-0 ${
+                isBest ? 'bg-brand-50' : ''
               }`}
             >
               {/* Rank */}
@@ -56,12 +50,9 @@ export default function PriceComparisonView({ deals, query }) {
 
               {/* Image */}
               {deal.imageUrl ? (
-                <img
-                  src={deal.imageUrl}
-                  alt={deal.name}
+                <img src={deal.imageUrl} alt={deal.name}
                   className="w-14 h-14 object-contain rounded-lg bg-gray-50 flex-shrink-0"
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
+                  onError={(e) => { e.target.style.display = 'none'; }} />
               ) : (
                 <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-2xl flex-shrink-0">
                   {categoryEmoji(deal.category)}
@@ -98,9 +89,7 @@ export default function PriceComparisonView({ deals, query }) {
                   <p className="text-sm text-gray-400 italic">See store</p>
                 )}
               </div>
-              {/* External link hint */}
-              <span className="text-gray-300 group-hover:text-brand-400 transition-colors flex-shrink-0 text-sm">↗</span>
-            </a>
+            </div>
           );
         })}
       </div>
