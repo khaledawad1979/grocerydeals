@@ -5,35 +5,7 @@ export default function DealCard({ deal }) {
     name, brand, category, imageUrl,
     originalPrice, salePrice, discountPct,
     unit, description, todayOnly, source,
-    flyerUrl, isFlyerCard,
   } = deal;
-
-  // Flyer-link card: no item pricing, just a link to the full ad
-  if (isFlyerCard) {
-    return (
-      <a
-        href={flyerUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bg-white rounded-xl border border-purple-200 shadow-sm hover:shadow-md hover:border-purple-400 transition-all overflow-hidden flex flex-col group"
-      >
-        {imageUrl ? (
-          <div className="h-32 bg-gray-50 flex items-center justify-center overflow-hidden">
-            <img src={imageUrl} alt={name} className="h-full w-full object-contain p-2" onError={(e) => { e.target.style.display = 'none'; }} />
-          </div>
-        ) : (
-          <div className="h-24 bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center text-3xl">📰</div>
-        )}
-        <div className="p-3 flex flex-col flex-1">
-          <p className="text-sm font-semibold text-gray-800 leading-snug mb-1">{name}</p>
-          {description && <p className="text-xs text-gray-400 mt-1">{description}</p>}
-          <div className="mt-auto pt-2 flex items-center gap-1 text-purple-600 text-xs font-semibold group-hover:underline">
-            <span>View All Deals on Flipp →</span>
-          </div>
-        </div>
-      </a>
-    );
-  }
 
   const hasPriceInfo = salePrice != null || originalPrice != null;
 

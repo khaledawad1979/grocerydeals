@@ -1,15 +1,17 @@
 const axios = require('axios');
+const { extractDealsFromFlyer } = require('./flippAI');
 
 const FLIPP_API = 'https://backflipp.wishabi.com/flipp';
 
 /**
- * Fetch grocery flyers near a ZIP code from Flipp.
- * Note: Flipp's per-item API is no longer publicly accessible. We return stores
- * that have active grocery flyers today, with a direct link to view each flyer.
+ * Fetch all active grocery flyers near a ZIP code, then use the FlippAI agent
+ * to extract individual deal items from each flyer.
+ * Returns { stores, deals } — same shape as before, but with real item cards.
  */
 async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = '') {
   const today = new Date().toISOString().slice(0, 10);
 
+  // 1. Fetch flyer list
   let flyers;
   try {
     const res = await axios.get(`${FLIPP_API}/flyers`, {
@@ -22,7 +24,7 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
     throw Object.assign(new Error(`Flipp API unavailable: ${err.message}`), { code: 'FLIPP_ERROR' });
   }
 
-  // Filter: grocery category + active today
+  // 2. Filter to grocery flyers active today
   const groceryFlyers = flyers.filter((f) => {
     const cats  = (f.categories_csv || '').toLowerCase();
     const start = (f.valid_from || '').slice(0, 10);
@@ -30,22 +32,22 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
     return (cats.includes('groceries') || cats.includes('grocery')) && end >= today && start <= today;
   });
 
-  const stores = [];
-  const deals  = [];
+  const stores     = [];
+  const deals      = [];
   const seenStores = new Set();
   const seenDeals  = new Set();
 
-  for (const flyer of groceryFlyers) {
-    const flyerStart   = (flyer.valid_from || today).slice(0, 10);
-    const flyerEnd     = (flyer.valid_to   || today).slice(0, 10);
-    const merchantName = (flyer.merchant   || '').trim() || 'Unknown Store';
-    // Use merchant_id so multiple flyers for the same chain collapse into one store
+  // Build city-state slug for flyer URLs
+  const citySlug = city && state
+    ? `${city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${state.toLowerCase()}`
+    : 'us';
+
+  // 3. Process flyers — cap at 8 to avoid excessive API/Vision calls
+  const flyerSubset = groceryFlyers.slice(0, 8);
+
+  for (const flyer of flyerSubset) {
+    const merchantName = (flyer.merchant || '').trim() || 'Unknown Store';
     const storeId      = `flipp-${flyer.merchant_id || flyer.id}`;
-    // Build the correct Flipp URL: /en-us/{city-state}/weekly_ad/{id}-{merchant-slug}
-    // e.g. https://flipp.com/en-us/buford-ga/weekly_ad/7942308-publix-weekly-ad
-    const citySlug     = city && state
-      ? `${city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${state.toLowerCase()}`
-      : 'us';
     const merchantSlug = merchantName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const flyerUrl     = `https://flipp.com/en-us/${citySlug}/weekly_ad/${flyer.id}-${merchantSlug}`;
 
@@ -64,31 +66,21 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
       });
     }
 
-    // Create one synthetic "deal" card per active flyer so the store section is non-empty
-    const dealKey = `${storeId}::flyer::${flyer.id}`;
-    if (!seenDeals.has(dealKey)) {
-      seenDeals.add(dealKey);
-      deals.push({
-        id: `flipp-${flyer.id}`,
-        storeId,
-        storeName: merchantName,
-        storeChain: merchantName,
-        name: `${merchantName} Weekly Ad`,
-        brand: null,
-        category: 'Grocery',
-        imageUrl: flyer.thumbnail_url || null,
-        originalPrice: null,
-        salePrice: null,
-        discountPct: null,
-        unit: null,
-        description: `Valid ${flyerStart} – ${flyerEnd}. Click to view all deals on Flipp.`,
-        startDate: flyerStart,
-        endDate: flyerEnd,
-        todayOnly: flyerEnd === today,
-        source: 'flipp',
-        flyerUrl,
-        isFlyerCard: true,
-      });
+    // 4. Use AI agent to extract deal items
+    let flyerDeals = [];
+    try {
+      flyerDeals = await extractDealsFromFlyer(flyer, merchantName, storeId);
+    } catch (err) {
+      console.warn(`[Flipp] AI extraction failed for ${merchantName}: ${err.message}`);
+      continue;
+    }
+
+    // Deduplicate by name within same store
+    for (const deal of flyerDeals) {
+      const key = `${storeId}::${deal.name.toLowerCase().trim()}`;
+      if (seenDeals.has(key)) continue;
+      seenDeals.add(key);
+      deals.push(deal);
     }
   }
 
