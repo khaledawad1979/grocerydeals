@@ -27,12 +27,19 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
     throw Object.assign(new Error(`Flipp API unavailable: ${err.message}`), { code: 'FLIPP_ERROR' });
   }
 
+  // Chains that sell groceries even when not tagged "grocery" on Flipp
+  const GROCERY_CHAINS = ['walmart', 'target', 'costco', 'dollar general', 'family dollar', 'dollar tree', 'big lots', 'cvs', 'walgreens', 'rite aid'];
+
   // 2. Filter to grocery flyers active today
   const groceryFlyers = flyers.filter((f) => {
-    const cats  = (f.categories_csv || '').toLowerCase();
-    const start = (f.valid_from || '').slice(0, 10);
-    const end   = (f.valid_to   || '').slice(0, 10);
-    return (cats.includes('groceries') || cats.includes('grocery')) && end >= today && start <= today;
+    const cats    = (f.categories_csv || '').toLowerCase();
+    const name    = (f.merchant || '').toLowerCase();
+    const start   = (f.valid_from || '').slice(0, 10);
+    const end     = (f.valid_to   || '').slice(0, 10);
+    const isActive = end >= today && start <= today;
+    const hasGrocery = cats.includes('groceries') || cats.includes('grocery') || cats.includes('food');
+    const isGroceryChain = GROCERY_CHAINS.some((c) => name.includes(c));
+    return isActive && (hasGrocery || isGroceryChain);
   });
 
   const stores     = [];
