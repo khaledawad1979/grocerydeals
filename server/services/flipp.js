@@ -52,8 +52,19 @@ async function getDealsNearZip(zip, lat, lng, radiusMiles, city = '', state = ''
     ? `${city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${state.toLowerCase()}`
     : 'us';
 
-  // 3. Process flyers — cap at 8 to avoid excessive API/Vision calls
-  const flyerSubset = groceryFlyers.slice(0, 8);
+  // Deduplicate: keep only the most-current flyer per merchant
+  const latestByMerchant = new Map();
+  for (const f of groceryFlyers) {
+    const key = (f.merchant || '').toLowerCase().trim();
+    const existing = latestByMerchant.get(key);
+    if (!existing || (f.valid_from || '') > (existing.valid_from || '')) {
+      latestByMerchant.set(key, f);
+    }
+  }
+  const dedupedFlyers = Array.from(latestByMerchant.values());
+
+  // 3. Process flyers — cap at 15 to cover all major grocery chains
+  const flyerSubset = dedupedFlyers.slice(0, 15);
 
   for (const flyer of flyerSubset) {
     const merchantName = (flyer.merchant || '').trim() || 'Unknown Store';
