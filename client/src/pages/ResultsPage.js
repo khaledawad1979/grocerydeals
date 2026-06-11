@@ -8,6 +8,7 @@ const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
 
 export default function ResultsPage({ search, results, loading, error, aiReady, onReset, onSearch }) {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [activeStore, setActiveStore]       = useState('All');
   const [itemQuery, setItemQuery]           = useState('');
   const [zip, setZip]     = useState(search?.zip || '');
   const [radius, setRadius] = useState(search?.radius || 10);
@@ -23,12 +24,13 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
     return Array.from(s).sort();
   }, [results]);
 
-  // All deals flat, filtered by item name query + category, sorted cheapest first
+  // All deals flat, filtered by item name query + category + store, sorted cheapest first
   const searchResults = useMemo(() => {
     if (!itemQuery.trim() || !results?.stores) return null;
     const q = itemQuery.toLowerCase().trim();
     const matched = [];
     for (const store of results.stores) {
+      if (activeStore !== 'All' && store.name !== activeStore) continue;
       for (const deal of store.deals || []) {
         const nameMatch = deal.name?.toLowerCase().includes(q) ||
                           deal.brand?.toLowerCase().includes(q);
@@ -36,19 +38,19 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
         if (nameMatch && catMatch) matched.push(deal);
       }
     }
-    // Sort: deals with price first (cheapest), then no-price items
     return matched.sort((a, b) => {
       if (a.salePrice != null && b.salePrice != null) return a.salePrice - b.salePrice;
       if (a.salePrice != null) return -1;
       if (b.salePrice != null) return 1;
       return 0;
     });
-  }, [itemQuery, activeCategory, results]);
+  }, [itemQuery, activeCategory, activeStore, results]);
 
   function handleSubmit(e) {
     e.preventDefault();
     if (/^\d{5}$/.test(zip.trim())) {
       setActiveCategory('All');
+      setActiveStore('All');
       setItemQuery('');
       onSearch({ zip: zip.trim(), radius });
     }
@@ -59,11 +61,17 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
     searchInputRef.current?.focus();
   }
 
-  const storesWithDeals = results?.stores?.filter((s) =>
-    activeCategory === 'All'
-      ? s.deals?.length > 0
-      : s.deals?.some((d) => d.category === activeCategory)
-  ) || [];
+  const storeNames = useMemo(() => {
+    if (!results?.stores) return [];
+    return results.stores.filter((s) => s.deals?.length > 0).map((s) => s.name);
+  }, [results]);
+
+  const storesWithDeals = results?.stores?.filter((s) => {
+    if (s.deals?.length === 0) return false;
+    if (activeStore !== 'All' && s.name !== activeStore) return false;
+    if (activeCategory === 'All') return true;
+    return s.deals?.some((d) => d.category === activeCategory);
+  }) || [];
 
   const isSearching = !!itemQuery.trim();
 
@@ -183,6 +191,26 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg leading-none"
                     >×</button>
                   )}
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-100" />
+
+                {/* Store filter pills */}
+                <div className="flex flex-wrap gap-2">
+                  {['All', ...storeNames].map((name) => (
+                    <button
+                      key={name}
+                      onClick={() => setActiveStore(name)}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                        activeStore === name
+                          ? 'bg-brand-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {name === 'All' ? '🏪 All Stores' : name}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Divider */}
