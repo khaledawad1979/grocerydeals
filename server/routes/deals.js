@@ -156,9 +156,21 @@ async function runVisionEnrichment(zip, radiusMiles, location, krogerStores, fli
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+const GROCERY_CATEGORIES = new Set([
+  'Produce', 'Dairy & Eggs', 'Meat & Seafood', 'Bakery', 'Frozen',
+  'Beverages', 'Snacks', 'Breakfast', 'Deli', 'Grocery', 'Other',
+]);
+
+function isGroceryDeal(deal) {
+  if (!deal.category || GROCERY_CATEGORIES.has(deal.category)) return true;
+  return false;
+}
+
 function buildResponse(location, stores, deals, errors) {
   const seenIds = new Set();
-  const unique  = deals.filter(d => { if (seenIds.has(d.id)) return false; seenIds.add(d.id); return true; });
+  const unique  = deals
+    .filter(isGroceryDeal)
+    .filter(d => { if (seenIds.has(d.id)) return false; seenIds.add(d.id); return true; });
 
   const storeMap = {};
   for (const s of stores) storeMap[s.id] = { ...s, deals: [] };
