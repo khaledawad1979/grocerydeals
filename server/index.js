@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 
 const storesRouter = require('./routes/stores');
 const dealsRouter  = require('./routes/deals');
+const userRouter   = require('./routes/user');
+const db           = require('./services/db');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +34,7 @@ app.use('/api', limiter);
 
 app.use('/api/stores', storesRouter);
 app.use('/api/deals',  dealsRouter);
+app.use('/api/user',   userRouter);
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 // Serve React build whenever it exists (production and local production builds)
@@ -45,6 +48,10 @@ app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error.' });
 });
+
+db.init()
+  .then(() => console.log('[DB] Users table ready'))
+  .catch((err) => console.error('[DB] Init failed:', err.message));
 
 app.listen(PORT, () => {
   console.log(`GroceryDeals server running on port ${PORT} [${isProd ? 'production' : 'development'}]`);

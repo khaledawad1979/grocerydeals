@@ -3,6 +3,7 @@ import Spinner from '../components/Spinner';
 import FilterBar from '../components/FilterBar';
 import StoreSection from '../components/StoreSection';
 import PriceComparisonView from '../components/PriceComparisonView';
+import UserMenu from '../components/UserMenu';
 
 const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
 
@@ -104,11 +105,12 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
           </form>
 
           {results && !loading && (
-            <div className="ml-auto flex-shrink-0 text-sm text-gray-500">
+            <div className="flex-shrink-0 text-sm text-gray-500 hidden sm:block">
               <span className="font-bold text-brand-700">{results.totalDeals}</span> deals at{' '}
               <span className="font-bold text-brand-700">{results.stores?.length}</span> stores
             </div>
           )}
+          <UserMenu />
         </div>
       </header>
 
