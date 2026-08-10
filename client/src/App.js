@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import LandingPage from './pages/LandingPage';
 import ResultsPage from './pages/ResultsPage';
+import ProfilePage from './pages/ProfilePage';
 
-const POLL_INTERVAL = 6000; // ms between status polls
+const POLL_INTERVAL = 6000;
 
 export default function App() {
   const [search, setSearch]   = useState(null);
@@ -10,14 +11,13 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [aiReady, setAiReady] = useState(false);
   const [error, setError]     = useState(null);
+  const [page, setPage]       = useState('home'); // 'home' | 'results' | 'profile'
   const pollRef = useRef(null);
 
-  // Stop polling when component unmounts or search changes
   function stopPolling() {
     if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
   }
 
-  // Poll /api/deals/status until Vision enrichment is done
   function startPolling(zip, radius) {
     stopPolling();
     pollRef.current = setInterval(async () => {
@@ -42,21 +42,16 @@ export default function App() {
     setResults(null);
     setAiReady(false);
     setSearch({ zip, radius });
+    setPage('results');
 
     try {
       const res  = await fetch(`/api/deals?zip=${encodeURIComponent(zip)}&radius=${radius}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to fetch deals.');
-
       setResults(data);
       setLoading(false);
-
-      // If Vision enrichment is still running, start polling for full results
-      if (!data.aiReady) {
-        startPolling(zip, radius);
-      } else {
-        setAiReady(true);
-      }
+      if (!data.aiReady) startPolling(zip, radius);
+      else setAiReady(true);
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -70,10 +65,15 @@ export default function App() {
     setError(null);
     setLoading(false);
     setAiReady(false);
+    setPage('home');
   }
 
-  if (!search && !loading) {
-    return <LandingPage onSearch={handleSearch} />;
+  if (page === 'profile') {
+    return <ProfilePage onBack={() => setPage(search ? 'results' : 'home')} />;
+  }
+
+  if (page === 'home' && !loading) {
+    return <LandingPage onSearch={handleSearch} onProfile={() => setPage('profile')} />;
   }
 
   return (
@@ -85,6 +85,7 @@ export default function App() {
       aiReady={aiReady}
       onReset={handleReset}
       onSearch={handleSearch}
+      onProfile={() => setPage('profile')}
     />
   );
 }

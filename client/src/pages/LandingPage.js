@@ -3,7 +3,7 @@ import UserMenu from '../components/UserMenu';
 
 const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
 
-export default function LandingPage({ onSearch }) {
+export default function LandingPage({ onSearch, onProfile }) {
   const [zip, setZip] = useState('');
   const [radius, setRadius] = useState(10);
   const [zipError, setZipError] = useState('');
@@ -30,7 +30,7 @@ export default function LandingPage({ onSearch }) {
           <span className="text-3xl">🛒</span>
           <span className="text-xl font-bold text-brand-700 tracking-tight">GroceryDeals Near Me</span>
         </div>
-        <UserMenu />
+        <UserMenu onProfile={onProfile} />
       </header>
 
       {/* Hero */}

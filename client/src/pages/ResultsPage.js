@@ -7,7 +7,7 @@ import UserMenu from '../components/UserMenu';
 
 const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
 
-export default function ResultsPage({ search, results, loading, error, aiReady, onReset, onSearch }) {
+export default function ResultsPage({ search, results, loading, error, aiReady, onReset, onSearch, onProfile }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeStore, setActiveStore]       = useState('All');
   const [itemQuery, setItemQuery]           = useState('');
@@ -110,7 +110,7 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
               <span className="font-bold text-brand-700">{results.stores?.length}</span> stores
             </div>
           )}
-          <UserMenu />
+          <UserMenu onProfile={onProfile} />
         </div>
       </header>
 

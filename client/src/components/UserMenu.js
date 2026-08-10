@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 
-export default function UserMenu() {
+export default function UserMenu({ onProfile }) {
   const { isAuthenticated, isLoading, user, loginWithRedirect, logout } = useAuth0();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -77,6 +77,17 @@ export default function UserMenu() {
             <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
             <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
+          {onProfile && (
+            <button
+              onClick={() => { setOpen(false); onProfile(); }}
+              className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              My Profile
+            </button>
+          )}
           <button
             onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
             className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
