@@ -149,7 +149,7 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
             {aiReady && results?.stores?.some(s => s.source === 'flipp' && s.deals?.length > 1) && (
               <div className="mb-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800 flex items-center gap-2">
                 <span>✨</span>
-                <span><strong>AI enrichment complete</strong> — all flyer items extracted by Claude Vision.</span>
+                <span><strong>AI enrichment complete</strong> — all weekly ad items extracted.</span>
               </div>
             )}
 

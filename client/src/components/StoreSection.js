@@ -8,7 +8,7 @@ export default function StoreSection({ store, activeCategory }) {
     ? store.deals
     : store.deals.filter((d) => d.category === activeCategory);
 
-  const sourceLabel = store.source === 'kroger' ? '🔵 Kroger' : '🟣 Flipp';
+  const sourceLabel = store.source === 'kroger' ? '🔵 Kroger' : '🟢 Weekly Ad';
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-4">

@@ -105,7 +105,7 @@ export default function LandingPage({ onSearch }) {
       </main>
 
       <footer className="py-4 text-center text-xs text-gray-400">
-        Deals sourced from Kroger API &amp; Flipp · Updated daily
+        Deals sourced from store weekly ads · Updated daily
       </footer>
     </div>
   );

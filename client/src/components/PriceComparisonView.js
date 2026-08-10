@@ -2,7 +2,7 @@ import React from 'react';
 
 const SOURCE_BADGE = {
   kroger: 'bg-blue-50 text-blue-600',
-  flipp:  'bg-purple-50 text-purple-600',
+  flipp:  'bg-green-50 text-green-600',
 };
 
 export default function PriceComparisonView({ deals, query }) {
@@ -71,7 +71,7 @@ export default function PriceComparisonView({ deals, query }) {
                   <span className="text-xs text-gray-500">{deal.storeName}</span>
                   {deal.unit && <span className="text-xs text-gray-400">· {deal.unit}</span>}
                   <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${SOURCE_BADGE[deal.source] || 'bg-gray-100 text-gray-500'}`}>
-                    {deal.source === 'kroger' ? 'Kroger' : 'Flipp'}
+                    {deal.source === 'kroger' ? 'Kroger' : 'Weekly Ad'}
                   </span>
                 </div>
               </div>

@@ -59,7 +59,7 @@ export default function DealCard({ deal }) {
           <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
             source === 'kroger' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
           }`}>
-            {source === 'kroger' ? 'Kroger' : 'Flipp'}
+            {source === 'kroger' ? 'Kroger' : 'Weekly Ad'}
           </span>
           {itemUrl && (
             <span className="text-xs text-brand-500 font-medium">View item ↗</span>
