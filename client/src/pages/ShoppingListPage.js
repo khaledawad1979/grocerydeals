@@ -1,11 +1,15 @@
 import React, { useState, useRef } from 'react';
 
+const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
+
 export default function ShoppingListPage({ search, onBack }) {
   const [input, setInput]     = useState('');
   const [items, setItems]     = useState([]);
   const [loading, setLoading] = useState(false);
   const [plan, setPlan]       = useState(null);
   const [error, setError]     = useState(null);
+  const [zip, setZip]         = useState(search?.zip || '');
+  const [radius, setRadius]   = useState(search?.radius || 10);
   const inputRef = useRef(null);
 
   function addItem() {
@@ -31,6 +35,10 @@ export default function ShoppingListPage({ search, onBack }) {
 
   async function optimize() {
     if (items.length === 0) return;
+    if (!/^\d{5}$/.test(zip.trim())) {
+      setError('Please enter a valid 5-digit ZIP code.');
+      return;
+    }
     setLoading(true);
     setError(null);
     setPlan(null);
@@ -38,7 +46,7 @@ export default function ShoppingListPage({ search, onBack }) {
       const res  = await fetch('/api/shopping-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, zip: search?.zip, radius: search?.radius || 10 }),
+        body: JSON.stringify({ items, zip: zip.trim(), radius }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to optimize.');
@@ -61,12 +69,29 @@ export default function ShoppingListPage({ search, onBack }) {
           Back
         </button>
         <span className="text-sm font-bold text-gray-800">Shopping List</span>
-        {search?.zip && (
-          <span className="ml-auto text-xs text-gray-400">📍 {search.zip} · {search.radius || 10} mi</span>
-        )}
+        <span className="ml-auto text-xs text-gray-400">📍 near you</span>
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-4">
+
+        {/* Location */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Your location</p>
+          <div className="flex gap-2">
+            <input
+              type="text" inputMode="numeric" maxLength={5}
+              value={zip} onChange={e => { setZip(e.target.value); setPlan(null); }}
+              placeholder="ZIP code"
+              className="w-28 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+            <select
+              value={radius} onChange={e => { setRadius(Number(e.target.value)); setPlan(null); }}
+              className="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+            >
+              {RADIUS_OPTIONS.map(r => <option key={r} value={r}>{r} mi radius</option>)}
+            </select>
+          </div>
+        </div>
 
         {/* Item input */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
