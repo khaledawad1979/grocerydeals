@@ -6,6 +6,11 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* Push content below iPhone notch / status bar */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }

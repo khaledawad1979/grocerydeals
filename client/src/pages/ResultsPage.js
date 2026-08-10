@@ -79,7 +79,7 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sticky top bar */}
-      <header className="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm">
+      <header className="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm safe-top">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">
           <button onClick={onReset} className="flex items-center gap-1.5 flex-shrink-0 group">
             <span className="text-2xl">🛒</span>

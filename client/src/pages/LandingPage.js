@@ -25,7 +25,7 @@ export default function LandingPage({ onSearch, onProfile }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-green-50 flex flex-col">
       {/* Header */}
-      <header className="py-5 px-6 flex items-center justify-between">
+      <header className="py-5 px-6 flex items-center justify-between safe-top">
         <div className="flex items-center gap-2">
           <span className="text-3xl">🛒</span>
           <span className="text-xl font-bold text-brand-700 tracking-tight">GroceryDeals Near Me</span>
