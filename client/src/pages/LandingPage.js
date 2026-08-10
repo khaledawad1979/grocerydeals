@@ -3,7 +3,7 @@ import UserMenu from '../components/UserMenu';
 
 const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
 
-export default function LandingPage({ onSearch, onProfile }) {
+export default function LandingPage({ onSearch, onProfile, onShoppingList }) {
   const [zip, setZip] = useState('');
   const [radius, setRadius] = useState(10);
   const [zipError, setZipError] = useState('');
@@ -30,6 +30,10 @@ export default function LandingPage({ onSearch, onProfile }) {
           <span className="text-3xl">🛒</span>
           <span className="text-xl font-bold text-brand-700 tracking-tight">GroceryDeals Near Me</span>
         </div>
+        <button onClick={onShoppingList} className="flex items-center gap-1.5 px-3 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 text-sm font-semibold rounded-lg transition-colors">
+          <span>📋</span>
+          <span>My List</span>
+        </button>
         <UserMenu onProfile={onProfile} />
       </header>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import LandingPage from './pages/LandingPage';
 import ResultsPage from './pages/ResultsPage';
 import ProfilePage from './pages/ProfilePage';
+import ShoppingListPage from './pages/ShoppingListPage';
 
 const POLL_INTERVAL = 6000;
 
@@ -72,8 +73,12 @@ export default function App() {
     return <ProfilePage onBack={() => setPage(search ? 'results' : 'home')} />;
   }
 
+  if (page === 'shopping-list') {
+    return <ShoppingListPage search={search} onBack={() => setPage(search ? 'results' : 'home')} />;
+  }
+
   if (page === 'home' && !loading) {
-    return <LandingPage onSearch={handleSearch} onProfile={() => setPage('profile')} />;
+    return <LandingPage onSearch={handleSearch} onProfile={() => setPage('profile')} onShoppingList={() => setPage('shopping-list')} />;
   }
 
   return (
@@ -86,6 +91,7 @@ export default function App() {
       onReset={handleReset}
       onSearch={handleSearch}
       onProfile={() => setPage('profile')}
+      onShoppingList={() => setPage('shopping-list')}
     />
   );
 }

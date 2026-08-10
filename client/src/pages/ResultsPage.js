@@ -7,7 +7,7 @@ import UserMenu from '../components/UserMenu';
 
 const RADIUS_OPTIONS = [5, 10, 15, 25, 50];
 
-export default function ResultsPage({ search, results, loading, error, aiReady, onReset, onSearch, onProfile }) {
+export default function ResultsPage({ search, results, loading, error, aiReady, onReset, onSearch, onProfile, onShoppingList }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeStore, setActiveStore]       = useState('All');
   const [itemQuery, setItemQuery]           = useState('');
@@ -110,6 +110,13 @@ export default function ResultsPage({ search, results, loading, error, aiReady, 
               <span className="font-bold text-brand-700">{results.stores?.length}</span> stores
             </div>
           )}
+          <button
+            onClick={onShoppingList}
+            className="flex items-center gap-1.5 px-3 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 text-sm font-semibold rounded-lg transition-colors flex-shrink-0"
+          >
+            <span>📋</span>
+            <span className="hidden sm:inline">My List</span>
+          </button>
           <UserMenu onProfile={onProfile} />
         </div>
       </header>

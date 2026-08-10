@@ -6,8 +6,9 @@ const rateLimit = require('express-rate-limit');
 
 const storesRouter = require('./routes/stores');
 const dealsRouter  = require('./routes/deals');
-const userRouter   = require('./routes/user');
-const db           = require('./services/db');
+const userRouter         = require('./routes/user');
+const shoppingListRouter = require('./routes/shoppingList');
+const db                 = require('./services/db');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -34,7 +35,8 @@ app.use('/api', limiter);
 
 app.use('/api/stores', storesRouter);
 app.use('/api/deals',  dealsRouter);
-app.use('/api/user',   userRouter);
+app.use('/api/user',          userRouter);
+app.use('/api/shopping-list', shoppingListRouter);
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 // Serve React build whenever it exists (production and local production builds)
